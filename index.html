@@ -5,12 +5,120 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Coming Soon</title>
     <style>
-      html,body{height:100%;margin:0}
-      body{display:grid;place-items:center;background:#0b1220;color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;font-size:clamp(1rem,2.5vw,1.25rem)}
-      .center{text-align:center;padding:12px}
+      :root{
+        --bg: #07111f;
+        --fg: #eef4ff;
+        --muted: rgba(238, 244, 255, 0.65);
+        --glow: rgba(95, 210, 255, 0.45);
+        --accent: #8be9fd;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at top, rgba(139, 233, 253, 0.14), transparent 36%),
+          radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.14), transparent 25%),
+          linear-gradient(180deg, #0b1220 0%, var(--bg) 100%);
+        color: var(--fg);
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: -20%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.04), transparent 55%);
+        filter: blur(18px);
+        animation: drift 12s ease-in-out infinite alternate;
+        pointer-events: none;
+      }
+
+      .center {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 24px;
+      }
+
+      .eyebrow {
+        margin-bottom: 14px;
+        font-size: 0.78rem;
+        letter-spacing: 0.42em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .title {
+        margin: 0;
+        font-size: clamp(2.5rem, 7vw, 6rem);
+        line-height: 0.95;
+        letter-spacing: -0.05em;
+        text-transform: uppercase;
+        background: linear-gradient(90deg, #ffffff 0%, var(--accent) 45%, #ffffff 100%);
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 0 24px var(--glow);
+        animation: shimmer 5s ease-in-out infinite;
+      }
+
+      .subtitle {
+        margin: 18px 0 0;
+        font-size: clamp(0.98rem, 2vw, 1.15rem);
+        color: var(--muted);
+        letter-spacing: 0.08em;
+      }
+
+      .dot {
+        display: inline-block;
+        width: 0.55rem;
+        height: 0.55rem;
+        margin: 0 0.35rem;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 20px var(--glow);
+        animation: pulse 1.8s ease-in-out infinite;
+      }
+
+      @keyframes shimmer {
+        0%,
+        100% { background-position: 0% 50%; transform: translateY(0); }
+        50% { background-position: 100% 50%; transform: translateY(-2px); }
+      }
+
+      @keyframes pulse {
+        0%, 100% { transform: scale(0.8); opacity: 0.55; }
+        50% { transform: scale(1.15); opacity: 1; }
+      }
+
+      @keyframes drift {
+        from { transform: translate3d(-2%, -1%, 0) scale(1); }
+        to { transform: translate3d(2%, 1%, 0) scale(1.06); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        body::before,
+        .title,
+        .dot {
+          animation: none;
+        }
+      }
     </style>
   </head>
   <body>
-    <div class="center">Coming soon — cstuwu.org</div>
+    <main class="center" aria-label="Coming soon page">
+      <div class="eyebrow">Launching soon</div>
+      <h1 class="title">Coming soon</h1>
+      <p class="subtitle"><span class="dot" aria-hidden="true"></span>cstuwu.org<span class="dot" aria-hidden="true"></span></p>
+    </main>
   </body>
 </html>
