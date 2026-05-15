@@ -5,8 +5,12 @@ on:
         branches:
             - main # change if your branch is different
 
+    workflow_dispatch:
+
 permissions:
-    contents: write
+    contents: read
+    pages: write
+    id-token: write
 
 jobs:
     build-deploy:
@@ -22,7 +26,14 @@ jobs:
             - run: npm install
             - run: npm run build
 
-            - uses: peaceiris/actions-gh-pages@v4
+            - name: Set up GitHub Pages
+              uses: actions/configure-pages@v4
+
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
               with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_dir: ./dist # change to build folder (build / out / dist)
+                  path: './dist'
+            
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
