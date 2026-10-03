@@ -89,12 +89,14 @@ export function SiteFooter() {
           aria-label={`${programme.award} home`}
           className="group block rounded-sm no-underline focus-visible:outline-2 focus-visible:outline-blue-400 focus-visible:outline-offset-[6px]"
         >
-          {/* Uppercase only, so no descender reaches the clip and the wrapper
-              needs no clearance padding. `leading-[0.84]` keeps roughly a tenth
-              of the cap height between lines, which is tight enough to read as
-              one block and loose enough that the ascenders of one line do not
-              collide with the caps above. */}
-          <div className="overflow-hidden pb-[0.08em] -mb-[0.08em] transition-transform duration-500 ease-out group-hover:-translate-y-1">
+          {/* Uppercase only, so no descender reaches the clip and the wrapper needs
+              no clearance padding. The hero's headline carries `pb-5 -mb-5` for
+              exactly that reason, and an `em` value here would be a trap anyway:
+              `em` in `padding` resolves against *this* div's inherited 16px, not
+              against the 165px type inside it. At `leading-[0.84]` the caps still
+              clear the top of their own line box by roughly 0.04em and stop at
+              the baseline, which is what keeps the clip off the glyphs. */}
+          <div className="overflow-hidden transition-transform duration-500 ease-out group-hover:-translate-y-1">
             <span className="flex flex-col text-[clamp(2.25rem,14cqw,10.5rem)] font-bold leading-[0.84] tracking-[-0.045em] text-white uppercase">
               {WORDMARK_LINES.map((line) => (
                 <span key={line} data-anim="wordmark-line" className="block will-change-transform">
@@ -121,7 +123,9 @@ export function SiteFooter() {
               Computing, software engineering, and data science, grounded in the resources and
               communities of Sri Lanka.
             </p>
-            <address className="mt-[clamp(1rem,3vw,1.25rem)] text-sm leading-[1.8] text-ink-500">
+            {/* `ink-400`, not `ink-500`: the lighter step is 5.6:1 on this black
+                and clears AA, where `ink-500` sits at 3.7:1 and does not. */}
+            <address className="mt-[clamp(1rem,3vw,1.25rem)] text-sm leading-[1.8] text-ink-400">
               {programme.address}
               <br />
               <a
@@ -148,7 +152,7 @@ export function SiteFooter() {
                   <li key={link.to}>
                     <Link
                       to={link.to}
-                      className="relative block py-1 text-sm text-ink-500 no-underline transition-colors duration-200 ease-out after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:scale-x-0 after:bg-current after:opacity-40 after:transition-transform after:duration-200 after:ease-out hover:text-white hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-blue-400 focus-visible:outline-offset-[3px]"
+                      className="relative block py-1 text-sm text-ink-400 no-underline transition-colors duration-200 ease-out after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:scale-x-0 after:bg-current after:opacity-40 after:transition-transform after:duration-200 after:ease-out hover:text-white hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-blue-400 focus-visible:outline-offset-[3px]"
                     >
                       {link.label}
                     </Link>
@@ -162,21 +166,21 @@ export function SiteFooter() {
         {/* The crest lives here rather than beside the wordmark: the giant type
             is the wordmark now, and setting the crest next to it as well would
             say the same thing twice. The strip is where a mark belongs anyway. */}
-        <div className="mt-[clamp(3rem,6vw,4rem)] flex flex-wrap items-center justify-between gap-x-[clamp(1rem,4vw,1.5rem)] gap-y-3 border-t border-white/8 py-[clamp(1.25rem,3vw,1.5rem)] text-xs text-ink-500 max-sm:flex-col max-sm:items-start max-sm:gap-2">
+        <div className="mt-[clamp(3rem,6vw,4rem)] flex flex-wrap items-center justify-between gap-x-[clamp(1rem,4vw,1.5rem)] gap-y-3 border-t border-white/8 py-[clamp(1.25rem,3vw,1.5rem)] text-xs text-ink-400 max-sm:flex-col max-sm:items-start max-sm:gap-2">
           <div className="flex items-center gap-3">
             <BrandMark size={22} className="flex-none" />
             <p>
               © {new Date().getFullYear()} {programme.award}
             </p>
           </div>
-          <p className="text-ink-400 text-balance max-sm:order-[-1]">
+          <p className="text-balance max-sm:order-[-1]">
             {programme.universityName}
           </p>
           <a
             href={UNIVERSITY_URL}
             target="_blank"
             rel="noreferrer noopener"
-            className="group inline-flex items-center gap-2 py-1.5 text-ink-500 no-underline transition-colors duration-200 ease-out hover:text-white focus-visible:outline-2 focus-visible:outline-blue-400 focus-visible:outline-offset-[3px]"
+            className="group inline-flex items-center gap-2 py-1.5 text-ink-400 no-underline transition-colors duration-200 ease-out hover:text-white focus-visible:outline-2 focus-visible:outline-blue-400 focus-visible:outline-offset-[3px]"
           >
             uwu.ac.lk
             <ArrowUpRight className="transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
