@@ -21,5 +21,9 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  /* Tests are typechecked by tsconfig.test.json, which has the Node types they
+     need. Leaving them in here would either fail on `process` or force Node
+     globals onto the browser build. */
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
 }

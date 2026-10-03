@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>Loading…</title>
+    <script>
+      // Single-page-app fallback for GitHub Pages, which has no rewrite rules.
+      // GitHub serves this file for any path that does not exist on disk, so we
+      // stash the requested URL and hand control back to the app at the root.
+      //
+      // NOTE: the base below must stay in sync with `base` in vite.config.ts.
+      ;(function () {
+        try {
+          sessionStorage.setItem(
+            'cst:redirect',
+            window.location.pathname + window.location.search + window.location.hash,
+          )
+        } catch (error) {
+          /* storage blocked — fall through to the plain link below */
+        }
+        window.location.replace('/cstuwu.org/')
+      })()
+    </script>
+  </head>
+  <body>
+    <p>
+      If you are not redirected automatically,
+      <a href="/cstuwu.org/">open the programme home page</a>.
+    </p>
+  </body>
+</html>

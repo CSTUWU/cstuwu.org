@@ -1,111 +1,401 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@import 'tailwindcss';
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+/* ==========================================================================
+   CST UWU — Swiss International Typographic Style.
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+   Layers, in cascade order:
+     1. @theme      design tokens → generates the utility scale
+     2. @utility    design-system composites reused across components
+     3. @layer base element-level typography and document behaviour
+     4. @layer components  cross-component theming overrides only
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
+   Everything else is composed from utilities in JSX. If a rule feels like it
+   belongs here, check first whether a utility or variant already covers it.
+
+   Animation hooks are `data-anim="…"` attributes, NOT class names, so that
+   restyling a component can never break its GSAP animation. See
+   `src/hooks/useGsapSection.ts`.
+   ========================================================================== */
+
+/* ─── Design tokens ────────────────────────────────────────────────────────
+   Namespaced keys generate matching utilities: --color-blue-700 gives
+   `bg-blue-700`, `text-blue-700`, `border-blue-700`, and so on.
+
+   The spacing scale is deliberately not redeclared: Tailwind's default
+   (0.25rem × n) already matches the scale this site was designed on.
+   ---------------------------------------------------------------------- */
+
+@theme {
+  /* Neutrals */
+  --color-ink-950: #111111;
+  --color-ink-900: #1a1a1a;
+  --color-ink-800: #2a2a2a;
+  --color-ink-700: #3a3a3a;
+  --color-ink-600: #555555;
+  --color-ink-500: #6b6b6b;
+  --color-ink-400: #888888;
+  --color-ink-300: #a0a0a0;
+  --color-ink-200: #c8c8c8;
+  --color-ink-100: #e0e0e0;
+
+  --color-paper: #fafafa;
+  --color-paper-alt: #f2f2f2;
+  --color-white: #ffffff;
+  --color-black: #0a0a0a;
+
+  --color-line: #e5e5e5;
+  --color-line-strong: #d0d0d0;
+  --color-line-subtle: #efefef;
+
+  /* University blue — the primary */
+  --color-blue-950: #051326;
+  --color-blue-900: #0b254a;
+  --color-blue-800: #10386e;
+  --color-blue-700: #154b8e; /* signature academic blue */
+  --color-blue-600: #1a5bb0;
+  --color-blue-500: #256fe0;
+  --color-blue-400: #5b9cf6; /* high-contrast accent on dark surfaces */
+  --color-blue-300: #93c0fa;
+  --color-blue-200: #bfdbfe;
+  --color-blue-100: #dbeafe;
+  --color-blue-50: #f0f5fc;
+
+  /* Crest gold — secondary */
+  --color-gold-500: #d99b26;
+  --color-gold-400: #f3b73e;
+
+  /* Crest green — the department crest only */
+  --color-green-700: #2f855a;
+  --color-green-600: #38a169;
+  --color-green-300: #9ae6b4;
+
+  /* Semantic accent. Re-pointed for dark surfaces in @layer base, which every
+     `text-accent` / `bg-accent` utility inside that subtree then picks up. */
+  --color-accent: var(--color-blue-700);
+  --color-accent-dim: var(--color-blue-400);
+  --color-accent-bg: var(--color-blue-50);
+  --color-accent-border: var(--color-blue-200);
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, 'Segoe UI', system-ui, sans-serif;
+
+  --text-xs: 0.6875rem; /* 11px */
+  --text-sm: 0.8125rem; /* 13px */
+  --text-base: 1rem; /* 16px */
+  --text-md: 1.125rem; /* 18px */
+  --text-lg: 1.375rem; /* 22px */
+  --text-xl: 1.75rem; /* 28px */
+  --text-2xl: 2.25rem; /* 36px */
+  --text-3xl: 3rem; /* 48px */
+  --text-4xl: 4rem; /* 64px */
+  --text-5xl: 5.5rem; /* 88px */
+
+  /* Shape and elevation */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.75rem;
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 8%);
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 6%);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Layout */
+  --container-site: 80rem; /* 1280px → `max-w-site` */
+  --spacing-gutter: clamp(1.5rem, 5vw, 3rem);
+  --spacing-section-y: clamp(5rem, 10vw, 8rem);
+
+  /* Keyframes declared here generate an `animate-*` utility */
+  --animate-scroll-line: scroll-line 1.5s var(--ease-in-out) infinite;
+
+  @keyframes scroll-line {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(200%); }
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+/* ─── Design-system composites ────────────────────────────────────────────
+   Multi-property patterns reused across components. Declaring them as
+   `@utility` keeps them in the utility layer (so variants like `hover:` and
+   `md:` work on them) instead of scattering long class lists across JSX.
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
+   Spacing here is written as `calc(var(--spacing) * n)`, not `var(--spacing-n)`.
+   Tailwind v4 exposes a single `--spacing` scale that its own utilities compute
+   from; there is no `--spacing-2` / `--spacing-3` to reference. A `var()` to a
+   name that does not exist invalidates the whole declaration at computed-value
+   time, so `padding: var(--spacing-3) var(--spacing-5)` silently became
+   `padding: 0`. Same trap applies to any `--text-*` or `--radius-*` not
+   declared in the `@theme` block above.
+   ---------------------------------------------------------------------- */
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
+/* ─── Custom cursor ────────────────────────────────────────────────────────
+   A rounded black triangle in place of the system arrow.
 
-body {
-  margin: 0;
-}
+   Three vertices, `M4 3.5 L19 8 L8 19 Z`, near enough equilateral — the sides
+   come out 15.7 / 15.6 / 16.0. It points up and left so the tip lands in the
+   same screen corner the OS arrow's tip did, and the hotspot sits there, which
+   is what keeps the perceived click point where it was.
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
+   The rounding is a `stroke` in the same colour as the `fill` with
+   `stroke-linejoin="round"` — the union of the two is the shape, so a 4px
+   stroke rounds every corner to a 2px radius and fattens the triangle by 2px
+   on each side without redrawing a single arc. `paint-order` is not needed
+   because nothing overlaps.
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+   Two copies of the path rather than one. A `#0a0a0a` cursor is invisible on
+   the page's near-black surfaces — the events gallery, the final CTA, the
+   footer, the marquee band, the hero photograph and the project artwork — so
+   those subtrees re-point the variable at the paper-coloured copy with
+   `on-dark`. A new dark surface has to join that utility.
+
+   `4 4` is the hotspot, on the triangle's tip. `auto` is the fallback, so a
+   browser that rejects the SVG shows the system cursor rather than nothing.
+   ---------------------------------------------------------------------- */
+
+@utility on-dark {
+  /* Only re-points the variable. The `*` rule in the base layer reads
+     `var(--cursor-arrow)` per element and custom properties inherit, so the
+     whole subtree follows without this having to touch `cursor` itself. */
+  --cursor-arrow: var(--cursor-arrow-inverse);
 }
 
-code,
-.counter {
-  font-family: var(--mono);
+@utility container {
+  width: 100%;
+  max-width: var(--container-site);
+  margin-inline: auto;
+  padding-inline: var(--spacing-gutter);
+}
+
+@utility eyebrow {
   display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-400);
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+@utility link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  /* Keeps the hit target at the WCAG 2.5.8 minimum of 24px. */
+  padding-block: 2px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-ink-900);
+  text-decoration: none;
+
+  /* The arrow nudges right on hover. `flex: none` keeps it from being
+     squeezed when the label wraps. */
+  svg {
+    flex: none;
+    transition: transform 0.2s var(--ease-out);
+  }
+  &:hover svg { transform: translateX(4px); }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-accent);
+  }
+}
+
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition:
+    background-color 0.2s var(--ease-out),
+    border-color 0.2s var(--ease-out),
+    color 0.2s var(--ease-out);
+}
+
+@utility btn-primary {
+  background: var(--color-ink-900);
+  color: var(--color-white);
+
+  &:hover { background: var(--color-blue-700); }
+}
+
+@utility btn-outline {
+  border-color: var(--color-line-strong);
+  color: var(--color-ink-900);
+
+  &:hover {
+    border-color: var(--color-ink-900);
+    background: var(--color-paper-alt);
+  }
+}
+
+@utility skip-link {
+  /* Fixed, not absolute: the site header is sticky, so an absolutely
+     positioned skip link would slide underneath it. */
+  position: fixed;
+  left: calc(var(--spacing) * 4);
+  top: -4rem;
+  z-index: 100;
+  padding: 0.5rem calc(var(--spacing) * 4);
+  background: var(--color-ink-900);
+  color: var(--color-white);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  transition: top 0.2s var(--ease-out);
+
+  /* Sits on its own dark plate, so it needs the light cursor like any other
+     dark surface. */
+  --cursor-arrow: var(--cursor-arrow-inverse);
+
+  &:focus { top: calc(var(--spacing) * 4); }
+}
+
+@utility visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@utility tbc {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-400);
+  background: var(--color-paper-alt);
+  border: 1px solid var(--color-line);
+  padding: 0.125rem calc(var(--spacing) * 2);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* ─── Base ─────────────────────────────────────────────────────────────── */
+
+@layer base {
+  /* The triangle, and its inverse for dark surfaces. `#0a0a0a` and `#fafafa`
+     are `--color-black` and `--color-paper`; they are spelled out because a
+     data URI cannot read a custom property. */
+  :root {
+    --cursor-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 3.5 L19 8 L8 19 Z' fill='%230a0a0a' stroke='%230a0a0a' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E") 4 4, auto;
+    --cursor-arrow-inverse: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 3.5 L19 8 L8 19 Z' fill='%23fafafa' stroke='%23fafafa' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E") 4 4, auto;
+  }
+
+  /* `cursor` inherits, so this could sit on `body` — except a UA declaration on
+     `button`, `select` and `input` outranks an inherited value and would put
+     the system arrow back on half the interactive elements. Naming every
+     element is what actually covers the page. */
+  *,
+  *::before,
+  *::after {
+    cursor: var(--cursor-arrow);
+  }
+
+  /* The typing affordance has to survive a custom cursor, or a text field is
+     indistinguishable from a heading at a glance. */
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']),
+  textarea,
+  [contenteditable='true'] {
+    cursor: text;
+  }
+
+  body {
+    min-height: 100svh;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Preflight does not reset this, and the browser italicises <address>. */
+  address {
+    font-style: normal;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 600;
+    color: var(--color-ink-900);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: clamp(var(--text-3xl), 7vw, var(--text-5xl));
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+  }
+
+  h2 {
+    font-size: clamp(var(--text-2xl), 4vw, var(--text-3xl));
+    letter-spacing: -0.035em;
+  }
+
+  h3 {
+    font-size: var(--text-md);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 0;
+  }
+
+  /* Honour the OS motion preference for CSS-driven animation. GSAP animation is
+     skipped separately, in `useGsapSection`. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ─── Cross-component theming ─────────────────────────────────────────────
+   Only rules that must apply to markup the component does not own.
+   ---------------------------------------------------------------------- */
+
+@layer components {
+  /* Dark sections re-point the accent ramp. Every `text-accent`,
+     `bg-accent` and `border-accent` utility in the subtree follows. */
+  .section-dark {
+    --color-accent: var(--color-blue-400);
+    --color-accent-dim: var(--color-blue-300);
+    --color-accent-bg: rgb(91 156 246 / 12%);
+    --color-accent-border: rgb(91 156 246 / 30%);
+    /* The black cursor would vanish against this background. */
+    --cursor-arrow: var(--cursor-arrow-inverse);
+
+    background: var(--color-ink-950);
+    border-top-color: var(--color-ink-800);
+    color: var(--color-ink-300);
+
+    h2, h3 { color: var(--color-white); }
+  }
+
+  /* SectionHeading renders its action link, so it cannot know the section
+     tone; the override has to live here. */
+  .section-dark .link-arrow { color: var(--color-white); }
 }
