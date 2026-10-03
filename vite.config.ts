@@ -5,7 +5,6 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/cstuwu.org/',
   test: {
     // Only the pure logic under `src/lib`, `src/content` and `src/data` is
     // unit-tested. Components are verified by rendering the built site, so the
